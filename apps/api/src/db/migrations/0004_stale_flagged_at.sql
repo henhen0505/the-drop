@@ -1,0 +1,1 @@
+ALTER TABLE "events" ADD COLUMN "stale_flagged_at" timestamp with time zone;

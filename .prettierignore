@@ -1,0 +1,10 @@
+node_modules
+dist
+.turbo
+cdk.out
+coverage
+pnpm-lock.yaml
+package-lock.json
+# drizzle-kit-owned migration metadata -- regenerated verbatim by
+# `drizzle-kit generate`, not meant to be hand-formatted.
+apps/api/src/db/migrations/meta

@@ -1,0 +1,42 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+      target: builder # dev target: keeps devDependencies (tsx, turbo) for hot reload
+    working_dir: /app/apps/api
+    command: npx tsx watch src/server.ts
+    ports:
+      - '3000:3000'
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      DATABASE_URL: postgresql://dev:dev@db:5432/thedrop
+      JWT_SECRET: dev-secret-change-me-in-production-32chars
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./apps/api/src:/app/apps/api/src
+      - ./packages/types/src:/app/packages/types/src
+
+  db:
+    image: postgres:16-alpine
+    ports:
+      # Host-side 5433: a native PostgreSQL service already owns 5432 on this machine.
+      # Container-to-container traffic (api -> db:5432) is unaffected.
+      - '5433:5432'
+    environment:
+      POSTGRES_USER: dev
+      POSTGRES_PASSWORD: dev
+      POSTGRES_DB: thedrop
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U dev']
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  pgdata:
