@@ -1,0 +1,56 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.title {
+  font-size: var(--font-size-2xl);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  background-color: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-6);
+}
+
+.sectionHeading {
+  font-size: var(--font-size-lg);
+}
+
+.genreSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.saveButton {
+  align-self: flex-start;
+  background-color: var(--color-accent);
+  color: var(--color-accent-text);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-6);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+
+.saveButton:hover:not(:disabled) {
+  background-color: var(--color-accent-hover);
+}
+
+.saveButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.error {
+  color: var(--color-danger);
+  font-size: var(--font-size-sm);
+}

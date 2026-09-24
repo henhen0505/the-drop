@@ -16,6 +16,7 @@ export const adminEventRouter = Router();
 adminEventRouter.use(requireAuth, requireRole('ADMIN'));
 
 adminEventRouter.get('/', validate(listAdminEventsSchema), controller.listEvents);
+adminEventRouter.get('/:id', validate(deleteAdminEventSchema), controller.getEvent);
 adminEventRouter.post('/', validate(createAdminEventSchema), controller.createEvent);
 // Registered before the /:id routes; it is a different method and path shape, so there is no overlap.
 adminEventRouter.post('/merge', validate(mergeEventsSchema), controller.mergeEvents);

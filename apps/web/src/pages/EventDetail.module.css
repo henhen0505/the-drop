@@ -1,0 +1,101 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.imageWrapper {
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background-color: var(--color-bg-elevated-2);
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.imagePlaceholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--color-bg-elevated-2), var(--color-bg-elevated));
+}
+
+.heroBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.warningBadge {
+  align-self: flex-start;
+  background-color: var(--color-danger);
+  color: var(--color-text);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  border-radius: var(--radius-sm);
+  padding: var(--space-1) var(--space-3);
+}
+
+.title {
+  font-size: var(--font-size-2xl);
+}
+
+.keyInfo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-6);
+  background-color: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+}
+
+.keyInfoItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.keyInfoLabel {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.sectionHeading {
+  font-size: var(--font-size-lg);
+}
+
+.venueLink {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+}
+
+.venueAddress {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.description {
+  color: var(--color-text);
+  white-space: pre-wrap;
+}

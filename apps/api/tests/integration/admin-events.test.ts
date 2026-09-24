@@ -195,6 +195,41 @@ describe('GET /api/v1/admin/events', () => {
   });
 });
 
+describe('GET /api/v1/admin/events/:id', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    actingAs('ADMIN');
+  });
+
+  const get = (id = EVENT_ID) =>
+    supertest(app).get(`/api/v1/admin/events/${id}`).set('Authorization', AUTH_HEADER);
+
+  it('returns the event detail', async () => {
+    vi.mocked(adminEventService.getAdminEvent).mockResolvedValue(DETAIL);
+
+    const res = await get();
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.id).toBe(EVENT_ID);
+    expect(adminEventService.getAdminEvent).toHaveBeenCalledWith(EVENT_ID);
+  });
+
+  it('404s for an unknown event and 400s for a non-UUID id', async () => {
+    vi.mocked(adminEventService.getAdminEvent).mockRejectedValueOnce(new NotFoundError('Event not found'));
+
+    expect((await get()).status).toBe(404);
+    expect((await get('not-a-uuid')).status).toBe(400);
+  });
+
+  it('401s without a token and 403s for a non-admin', async () => {
+    expect((await supertest(app).get(`/api/v1/admin/events/${EVENT_ID}`)).status).toBe(401);
+
+    actingAs('USER');
+    expect((await get()).status).toBe(403);
+    expect(adminEventService.getAdminEvent).not.toHaveBeenCalled();
+  });
+});
+
 describe('POST /api/v1/admin/events', () => {
   beforeEach(() => {
     vi.clearAllMocks();

@@ -28,6 +28,12 @@ export const listEvents = asyncHandler(async (req, res) => {
   res.json(result);
 });
 
+export const getEvent = asyncHandler(async (req, res) => {
+  const { id } = req.params as { id: string };
+  const data = await adminEventService.getAdminEvent(id);
+  res.json({ data });
+});
+
 export const createEvent = asyncHandler(async (req, res) => {
   const data = await adminEventService.createAdminEvent(
     req.user!.id,

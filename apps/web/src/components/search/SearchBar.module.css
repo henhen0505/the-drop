@@ -1,0 +1,27 @@
+.wrapper {
+  position: relative;
+  display: flex;
+  width: 100%;
+  max-width: 480px;
+}
+
+.input {
+  flex: 1;
+  background-color: var(--color-bg-elevated-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+}
+
+.input:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -1px;
+}
+
+.searchButton {
+  background-color: var(--color-bg-elevated-2);
+  border: 1px solid var(--color-border);
+  border-left: none;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 0 var(--space-3);
+}

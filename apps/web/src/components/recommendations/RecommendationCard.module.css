@@ -1,0 +1,63 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.card:hover {
+  border-color: var(--color-accent);
+  text-decoration: none;
+}
+
+.imageWrapper {
+  aspect-ratio: 16 / 9;
+  background-color: var(--color-bg-elevated-2);
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.imagePlaceholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--color-bg-elevated-2), var(--color-bg-elevated));
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-4);
+}
+
+.date {
+  font-size: var(--font-size-xs);
+  color: var(--color-accent);
+  text-transform: uppercase;
+}
+
+.title {
+  font-size: var(--font-size-lg);
+  margin: 0;
+}
+
+.venue {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.explanation {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin-top: var(--space-2);
+  font-style: italic;
+}
