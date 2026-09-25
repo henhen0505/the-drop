@@ -109,6 +109,36 @@ async function filterAlreadyNotified<T extends { userId: string; entityId: strin
   );
 }
 
+/**
+ * EVENT_TOMORROW-only idempotency check: matches on (userId, eventId, eventDate) rather than
+ * (userId, eventId) alone. Without the date, a rescheduled event's new "tomorrow" notification
+ * is silently dropped because a notification for that (userId, eventId) pair already exists from
+ * the original date -- see notification-triggers.test.ts for the reschedule regression case.
+ */
+async function filterAlreadyNotifiedForDate<T extends { userId: string; entityId: string; eventDate: string }>(
+  candidates: T[],
+): Promise<T[]> {
+  if (candidates.length === 0) return candidates;
+
+  const ids = [...new Set(candidates.map((candidate) => candidate.entityId))];
+  const idExpr = entityIdExpr('eventId');
+  const rows = await db
+    .select({
+      userId: notifications.userId,
+      entityId: idExpr,
+      eventDate: sql<string | null>`${notifications.data} ->> 'eventDate'`,
+    })
+    .from(notifications)
+    .where(and(eq(notifications.type, 'EVENT_TOMORROW'), inArray(idExpr, ids)));
+
+  const alreadyNotified = new Set(
+    rows.map((row) => `${row.userId}:${row.entityId}:${row.eventDate ?? ''}`),
+  );
+  return candidates.filter(
+    (candidate) => !alreadyNotified.has(`${candidate.userId}:${candidate.entityId}:${candidate.eventDate}`),
+  );
+}
+
 async function insertNotifications(candidates: Candidate[]): Promise<number> {
   if (candidates.length === 0) return 0;
 
@@ -126,7 +156,12 @@ async function insertNotifications(candidates: Candidate[]): Promise<number> {
 
 export async function scanEventTomorrow(): Promise<number> {
   const rows = await db
-    .select({ userId: userEventStates.userId, eventId: events.id, title: events.title })
+    .select({
+      userId: userEventStates.userId,
+      eventId: events.id,
+      title: events.title,
+      startsAt: events.startsAt,
+    })
     .from(userEventStates)
     .innerJoin(events, eq(events.id, userEventStates.eventId))
     .where(
@@ -138,18 +173,22 @@ export async function scanEventTomorrow(): Promise<number> {
     );
 
   const prefs = await fetchPreferenceMap(rows.map((row) => row.userId));
-  const candidates: Candidate[] = rows
+  const candidates = rows
     .filter((row) => preferenceFor(prefs, row.userId).eventTomorrow)
-    .map((row) => ({
-      userId: row.userId,
-      entityId: row.eventId,
-      type: 'EVENT_TOMORROW',
-      title: `${row.title} is tomorrow`,
-      body: null,
-      data: { eventId: row.eventId },
-    }));
+    .map((row) => {
+      const eventDate = row.startsAt.toISOString().slice(0, 10);
+      return {
+        userId: row.userId,
+        entityId: row.eventId,
+        eventDate,
+        type: 'EVENT_TOMORROW' as const,
+        title: `${row.title} is tomorrow`,
+        body: null,
+        data: { eventId: row.eventId, eventDate },
+      };
+    });
 
-  const filtered = await filterAlreadyNotified('EVENT_TOMORROW', candidates, 'eventId');
+  const filtered = await filterAlreadyNotifiedForDate(candidates);
   return insertNotifications(filtered);
 }
 

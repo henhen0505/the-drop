@@ -60,19 +60,29 @@ describe('scanEventTomorrow', () => {
   });
 
   it('creates a notification for a user with an active state on an event starting within 25 hours', async () => {
-    useWorld({ mainRows: [{ userId: 'u1', eventId: 'ev1', title: 'Knock2 Live' }] });
+    useWorld({
+      mainRows: [
+        { userId: 'u1', eventId: 'ev1', title: 'Knock2 Live', startsAt: new Date('2026-10-09T20:00:00Z') },
+      ],
+    });
 
     const count = await scanEventTomorrow();
 
     expect(count).toBe(1);
     expect(insertedValues()).toEqual([
-      expect.objectContaining({ userId: 'u1', type: 'EVENT_TOMORROW', data: { eventId: 'ev1' } }),
+      expect.objectContaining({
+        userId: 'u1',
+        type: 'EVENT_TOMORROW',
+        data: { eventId: 'ev1', eventDate: '2026-10-09' },
+      }),
     ]);
   });
 
   it('skips a user who has turned the eventTomorrow preference off', async () => {
     useWorld({
-      mainRows: [{ userId: 'u1', eventId: 'ev1', title: 'Knock2 Live' }],
+      mainRows: [
+        { userId: 'u1', eventId: 'ev1', title: 'Knock2 Live', startsAt: new Date('2026-10-09T20:00:00Z') },
+      ],
       prefsRows: [
         {
           userId: 'u1',
@@ -89,6 +99,43 @@ describe('scanEventTomorrow', () => {
 
     expect(count).toBe(0);
     expect(ops.some((op) => op.root === 'insert')).toBe(false);
+  });
+
+  it('skips a candidate already notified for the same event on the same date', async () => {
+    useWorld({
+      mainRows: [
+        { userId: 'u1', eventId: 'ev1', title: 'Knock2 Live', startsAt: new Date('2026-10-09T20:00:00Z') },
+      ],
+      existingNotified: [{ userId: 'u1', entityId: 'ev1', eventDate: '2026-10-09' }],
+    });
+
+    const count = await scanEventTomorrow();
+
+    expect(count).toBe(0);
+    expect(ops.some((op) => op.root === 'insert')).toBe(false);
+  });
+
+  it('does not suppress a rescheduled event whose startsAt date has changed', async () => {
+    // Original notification was sent for the event's original Oct 9 startsAt. The event was then
+    // postponed to Oct 20, so it is a fresh candidate for Oct 19's "tomorrow" scan and must not be
+    // dropped just because (userId, eventId) already has a notification on record.
+    useWorld({
+      mainRows: [
+        { userId: 'u1', eventId: 'ev1', title: 'Knock2 Live', startsAt: new Date('2026-10-20T20:00:00Z') },
+      ],
+      existingNotified: [{ userId: 'u1', entityId: 'ev1', eventDate: '2026-10-09' }],
+    });
+
+    const count = await scanEventTomorrow();
+
+    expect(count).toBe(1);
+    expect(insertedValues()).toEqual([
+      expect.objectContaining({
+        userId: 'u1',
+        type: 'EVENT_TOMORROW',
+        data: { eventId: 'ev1', eventDate: '2026-10-20' },
+      }),
+    ]);
   });
 });
 
